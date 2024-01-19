@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JSON Data Visualization</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+    <style>
+        .chart-container {
+            width: 80%;
+            height: 400px;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="chart-container">
+        <canvas id="timeSeriesChart"></canvas>
+    </div>
+    <script>
+        fetch('output_file.json')
+            .then(response => response.json())
+            .then(data => {
+                const timeSeriesData = data.results;
+                const ctx = document.getElementById('timeSeriesChart').getContext('2d');
+                const labels = timeSeriesData.map(entry => moment(entry.startDateTime).format('YYYY-MM-DD HH:mm:ss'));
+                const dataPoints = timeSeriesData.map(entry => entry.consumption);
+
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Consumption',
+                            backgroundColor: 'rgba(0, 123, 255, 0.5)',
+                            borderColor: 'rgba(0, 123, 255, 1)',
+                            data: dataPoints,
+                            fill: false,
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            xAxes: [{
+                                type: 'time',
+                                time: {
+                                    format: 'YYYY-MM-DD HH:mm:ss',
+                                    tooltipFormat: 'll HH:mm'
+                                },
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'Date'
+                                }
+                            }],
+                            yAxes: [{
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'Consumption'
+                                }
+                            }]
+                        }
+                    }
+                });
+            })
+            .catch(error => console.error('Error loading JSON data:', error));
+    </script>
+</body>
+</html>
